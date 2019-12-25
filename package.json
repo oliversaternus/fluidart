@@ -1,0 +1,37 @@
+{
+  "name": "react-typescript",
+  "version": "1.0.0",
+  "description": "This is a react boilerplate project using TypeScript and webpack",
+  "main": "App.tsx",
+  "author": "Oliver Saternus",
+  "license": "MIT",
+  "scripts": {
+    "start": "./node_modules/.bin/webpack-dev-server --progress",
+    "build": "webpack"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.4.2",
+    "@material-ui/icons": "^4.4.1",
+    "@types/animejs": "^3.1.0",
+    "@types/classnames": "^2.2.9",
+    "@types/material-ui": "^0.21.7",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "@types/react-router": "^5.0.3",
+    "@types/react-router-dom": "^4.3.5",
+    "animejs": "^3.1.0",
+    "classnames": "^2.2.6",
+    "mobx": "^5.13.0",
+    "mobx-react": "^6.1.3",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
+    "source-map-loader": "^0.2.4",
+    "ts-loader": "^6.1.0",
+    "typescript": "^3.6.3",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.1"
+  }
+}
