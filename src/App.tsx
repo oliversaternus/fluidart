@@ -109,7 +109,7 @@ const styles = () => createStyles({
     infoBox: {
         width: 206,
         height: 68,
-        border: '1px solid #2e2e2e',
+        border: '1px solid #ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -117,7 +117,6 @@ const styles = () => createStyles({
         fontFamily: 'sans-serif',
         fontSize: 16,
         padding: 16,
-        fontWeight: 'bold',
         backgroundImage: 'url(static/exmpl.jpg)',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -136,7 +135,7 @@ const styles = () => createStyles({
         textAlign: 'center'
     },
     footerPlaceholder: {
-        height: 24,
+        height: 32,
         width: '100%'
     }
 });
@@ -273,9 +272,9 @@ class App extends React.Component<AppProps, AppState> {
                             {'Download'}
                         </Button>
                     </div>
-                    {size.width <= 680 && <div style={{ marginTop: 16 }} className={classes.infoBox}>Generate unique, creative images!</div>}
+                    {size.width <= 680 && <div style={{ marginTop: 24 }} className={classes.infoBox}>Generate unique, creative images!</div>}
                     <div className={classes.footerPlaceholder} />
-                    <div className={classes.footer}>© Oliver Saternus 2019</div>
+                    <div className={classes.footer}>© Oliver Saternus 2019 ✉ info@fluidart.io<br/>Hägenerstraße 3, 42855 Remscheid, Germany</div>
                 </div>
             </div>
         );
