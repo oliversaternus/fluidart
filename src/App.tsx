@@ -6,6 +6,9 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from "@material-ui/core/TextField";
 import Slider from '@material-ui/core/Slider';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Typography from '@material-ui/core/Typography';
 import Image from "./components/Image";
 import { baseUrl, colorSchemes } from "./utils/Constants";
 import { randomString } from "./utils/Functions";
@@ -31,14 +34,12 @@ interface AppState {
 
 const styles = () => createStyles({
     root: {
-        display: 'flex',
         width: '100%',
-        height: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+        height: 'calc(100% - 48px)',
+        minHeight: 'calc(100vh - 112px)',
         overflow: 'hidden',
-        backgroundColor: '#d2d2d2',
+        backgroundColor: '#dadada',
+        position: 'relative',
         paddingTop: 24,
         paddingBottom: 24
     },
@@ -52,11 +53,13 @@ const styles = () => createStyles({
     colorSchemeItem: {
         width: 24,
         height: 24,
-        margin: 4
+        marginLeft: 4,
+        marginRight: 4
     },
     image: {
         height: 400,
-        width: 400
+        width: 400,
+        boxShadow: '0 0 16px rgba(0,0,0,0.48)'
     },
     small: {
         height: '90vw',
@@ -66,7 +69,8 @@ const styles = () => createStyles({
     },
     controls: {
         height: '100%',
-        padding: 24
+        padding: 24,
+        position: 'relative'
     },
     controlItem: {
         margin: 6,
@@ -82,7 +86,58 @@ const styles = () => createStyles({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'flex-start'
+    },
+    typography: {
+        width: '100%',
+        fontSize: 12,
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        color: 'rgba(0,0,0,0.54)'
+    },
+    leftBar: {
+        position: 'absolute',
+        left: 0,
+        height: 'calc(100% - 48px)',
+        width: 240,
+        backgroundColor: '#ffffff',
+        boxShadow: '0 0 16px rgba(0,0,0,0.28)'
+    },
+    controlsPlaceholder: {
+        width: 288,
+        height: '100%'
+    },
+    infoBox: {
+        width: 206,
+        height: 68,
+        border: '1px solid #2e2e2e',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#ffffff',
+        fontFamily: 'sans-serif',
+        fontSize: 16,
+        padding: 16,
+        fontWeight: 'bold',
+        backgroundImage: 'url(static/exmpl.jpg)',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        position: 'relative'
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        color: '#2e2e2e',
+        fontFamily: 'sans-serif',
+        fontSize: 12,
+        padding: 12,
+        width: 'calc(100% - 24px)',
+        textAlign: 'center'
+    },
+    footerPlaceholder: {
+        height: 24,
+        width: '100%'
     }
 });
 
@@ -95,9 +150,9 @@ class App extends React.Component<AppProps, AppState> {
         this.state = {
             style: 'fluid',
             complexity: 10,
-            seed: 'random',
-            colors: ["FFE066", "247BA0", "70C1B3"],
-            src: [baseUrl, 'fluid', 0.5, "random", "FFE066", "247BA0", "70C1B3"].join('/'),
+            seed: 'abcdefghijkl',
+            colors: ["EF476F", "FFD166", "06D6A0", "118AB2"],
+            src: [baseUrl, 'image', 'fluid', 0.5, "abcdefghijkl", "EF476F", "FFD166", "06D6A0", "118AB2"].join('/'),
             size: {
                 width: this.rootElement.getBoundingClientRect().width,
                 height: this.rootElement.getBoundingClientRect().height
@@ -117,7 +172,7 @@ class App extends React.Component<AppProps, AppState> {
         }
         this.debounce = setTimeout(() => {
             const { style, complexity, seed, colors } = this.state;
-            this.setState({ src: [baseUrl, style, complexity / 20, seed, ...colors].join('/') });
+            this.setState({ src: [baseUrl, 'image', style, complexity / 20, seed, ...colors].join('/') });
         }, timeout);
     };
 
@@ -130,13 +185,14 @@ class App extends React.Component<AppProps, AppState> {
     };
 
     download = () => {
-        const { src } = this.state;
+        const { style, complexity, seed, colors } = this.state;
+        const url = [baseUrl, 'download', style, complexity / 20, seed, ...colors].join('/');
         const a = document.createElement('a');
-        a.setAttribute('href', src);
+        a.setAttribute('href', url);
         a.setAttribute('download', 'image');
         document.body.appendChild(a);
         const i = document.createElement('img');
-        i.setAttribute('src', src);
+        i.setAttribute('src', url);
         a.appendChild(i);
         a.click();
         document.body.removeChild(a);
@@ -146,8 +202,8 @@ class App extends React.Component<AppProps, AppState> {
         const { classes } = this.props;
         return (
             <div className={classes.colorScheme}>
-                {scheme.map((color: string) =>
-                    <div key={color} className={classes.colorSchemeItem} style={{ backgroundColor: '#' + color }} />
+                {scheme.map((color: string, index: number) =>
+                    <div key={color + index} className={classes.colorSchemeItem} style={{ backgroundColor: '#' + color }} />
                 )}
             </div>
         );
@@ -158,8 +214,11 @@ class App extends React.Component<AppProps, AppState> {
         const { style, complexity, seed, colors, src, size } = this.state;
         return (
             <div className={classNames(classes.root, size.width > 680 ? classes.row : classes.column)}>
-                <Image src={src} className={classNames(classes.image, size.width < 680 ? classes.small : null)} />
-                <div className={classNames(classes.controls, classes.column)}>
+                {size.width > 680 && <div className={classes.controlsPlaceholder} />}
+                <Image src={src} className={classNames(classes.image, size.width <= 680 ? classes.small : null)} />
+                <div className={classNames(classes.controls, classes.column, size.width > 680 ? classes.leftBar : null)}>
+                    {size.width > 680 && <div style={{ marginBottom: 16 }} className={classes.infoBox}>Generate unique, creative images!</div>}
+                    <Typography align="left" className={classes.typography}>Complexity</Typography>
                     <Slider
                         value={complexity}
                         onChange={(event: any, newValue: number) => this.changeState({ complexity: newValue }, 330)}
@@ -169,31 +228,36 @@ class App extends React.Component<AppProps, AppState> {
                         max={20}
                     />
                     <TextField
+                        label={'Random Seed'}
                         value={seed}
                         className={classes.controlItem}
                         onChange={(e) => this.changeState({ seed: e.target.value }, 500)}
                     />
-                    <Select
-                        value={style}
-                        className={classes.controlItem}
-                        onChange={(e) => this.changeState({ style: e.target.value as any }, 100)}
-                    >
-                        <MenuItem value={'blur'}>Blur</MenuItem>
-                        <MenuItem value={'flat'}>Flat</MenuItem>
-                        <MenuItem value={'fluid'}>Fluid</MenuItem>
-                    </Select>
-                    <Select
-                        value={colors}
-                        renderValue={this.renderColorScheme}
-                        className={classes.controlItem}
-                        onChange={(e) => this.changeState({ colors: e.target.value as any }, 100)}
-                    >
-                        {colorSchemes.map(scheme =>
-                            <MenuItem key={scheme + ''} value={scheme}>
-                                {this.renderColorScheme(scheme)}
-                            </MenuItem>
-                        )}
-                    </Select>
+                    <FormControl className={classes.controlItem}>
+                        <InputLabel>Style</InputLabel>
+                        <Select
+                            value={style}
+                            onChange={(e) => this.changeState({ style: e.target.value as any }, 100)}
+                        >
+                            <MenuItem value={'blur'}>Gradient</MenuItem>
+                            <MenuItem value={'flat'}>Flat</MenuItem>
+                            <MenuItem value={'fluid'}>Fluid</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl className={classes.controlItem}>
+                        <InputLabel>Colors</InputLabel>
+                        <Select
+                            value={colors}
+                            renderValue={this.renderColorScheme}
+                            onChange={(e) => this.changeState({ colors: e.target.value as any }, 100)}
+                        >
+                            {colorSchemes.map(scheme =>
+                                <MenuItem key={scheme + ''} value={scheme}>
+                                    {this.renderColorScheme(scheme)}
+                                </MenuItem>
+                            )}
+                        </Select>
+                    </FormControl>
                     <div className={classes.row}>
                         <Button
                             onClick={this.shuffle}
@@ -206,9 +270,12 @@ class App extends React.Component<AppProps, AppState> {
                             color="primary"
                             variant="contained"
                             className={classes.controlItem} >
-                            {'Donwload'}
+                            {'Download'}
                         </Button>
                     </div>
+                    {size.width <= 680 && <div style={{ marginTop: 16 }} className={classes.infoBox}>Generate unique, creative images!</div>}
+                    <div className={classes.footerPlaceholder} />
+                    <div className={classes.footer}>© Oliver Saternus 2019</div>
                 </div>
             </div>
         );

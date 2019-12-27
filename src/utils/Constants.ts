@@ -1,20 +1,6 @@
-const baseUrl = 'https://shapes.oliversaternus.de';
+const baseUrl = 'https://fluidart.io';
 
 const colorSchemes = [
-    [
-        "EB4034",
-        "FC9D17"
-    ],
-    [
-        "FFE066",
-        "247BA0",
-        "70C1B3"
-    ],
-    [
-        "D62828",
-        "F77F00",
-        "FCBF49"
-    ],
     [
         "EF476F",
         "FFD166",
@@ -22,16 +8,40 @@ const colorSchemes = [
         "118AB2"
     ],
     [
-        "FDE74C",
-        "9BC53D",
-        "E55934",
-        "FA7921"
-    ],
-    [
         "028090",
         "E4FDE1",
         "456990",
         "F45B69"
+    ],
+    [
+        "FFCA3A",
+        "8AC926",
+        "1982C4",
+        "6A4C93"
+    ],
+    [
+        "E2711D",
+        "FF9505",
+        "FFB627",
+        "FFC971"
+    ],
+    [
+        "001F54",
+        "034078",
+        "1282A2",
+        "FEFCFB"
+    ],
+    [
+        "F9C80E",
+        "F86624",
+        "EA3546",
+        "662E9B"
+    ],
+    [
+        "2364AA",
+        "3DA5D9",
+        "73BFB8",
+        "FEC601"
     ]
 ];
 

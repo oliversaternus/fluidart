@@ -7,18 +7,8 @@ import App from './App';
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#155799',
+      main: 'rgb(216, 49, 49)',
       contrastText: '#ffffff',
-    },
-    secondary: {
-      main: '#ebeef0',
-      contrastText: '#000000',
-    },
-    action: {
-      disabledBackground: '#09421d'
-    },
-    background: {
-      default: '#2f2f33'
     }
   },
 });
