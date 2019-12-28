@@ -57,8 +57,10 @@ const styles = () => createStyles({
         marginRight: 4
     },
     image: {
-        height: 400,
-        width: 400,
+        height: '80vh',
+        width: '80vh',
+        maxWidth: 1200,
+        maxHeight: 1200,
         boxShadow: '0 0 16px rgba(0,0,0,0.48)'
     },
     small: {
@@ -107,14 +109,14 @@ const styles = () => createStyles({
         height: '100%'
     },
     infoBox: {
-        width: 206,
+        width: 208,
         height: 68,
-        border: '1px solid #ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         color: '#ffffff',
         fontFamily: 'sans-serif',
+        fontWeight: 'bold',
         fontSize: 16,
         padding: 16,
         backgroundImage: 'url(static/exmpl.jpg)',

@@ -60,9 +60,8 @@ class Image extends React.Component<ImageProps, { loaded: boolean }> {
         const { classes, src, className, style } = this.props;
         const { loaded } = this.state;
         return (
-            <div className={classNames(classes.root, className)}>
+            <div className={classNames(classes.root, className)} style={style}>
                 <img
-                    style={loaded ? style : null}
                     src={src}
                     onLoad={() => this.setState({ loaded: true })}
                     className={classNames(classes.image, loaded ? classes.loaded : null)}
