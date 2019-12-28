@@ -5,8 +5,10 @@ import Button from "@material-ui/core/Button";
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from "@material-ui/core/TextField";
+import Casino from "@material-ui/icons/Casino";
 import AutoRenew from "@material-ui/icons/AutoRenew";
 import Slider from '@material-ui/core/Slider';
+import Save from "@material-ui/icons/Save";
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
@@ -152,9 +154,9 @@ class App extends React.Component<AppProps, AppState> {
         this.state = {
             style: 'fluid',
             complexity: 10,
-            seed: 'abcdefghijkl',
+            seed: '2VSUXK4BPJQL',
             colors: ["EF476F", "FFD166", "06D6A0", "118AB2"],
-            src: [baseUrl, 'image', 'fluid', 0.5, "abcdefghijkl", "EF476F", "FFD166", "06D6A0", "118AB2"].join('/'),
+            src: [baseUrl, 'image', 'fluid', 0.5, "2VSUXK4BPJQL", "EF476F", "FFD166", "06D6A0", "118AB2"].join('/'),
             size: {
                 width: this.rootElement.getBoundingClientRect().width,
                 height: this.rootElement.getBoundingClientRect().height
@@ -179,6 +181,14 @@ class App extends React.Component<AppProps, AppState> {
     };
 
     shuffle = () => {
+        const style = ['fluid', 'blur'][Math.floor(Math.random() * 2)] as 'fluid' | 'blur';
+        const colors = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+        const complexity = Math.floor(Math.random() * 21);
+        const seed = randomString(12);
+        this.changeState({ style, colors, complexity, seed }, 50);
+    };
+
+    shuffleSeed = () => {
         const seed = randomString(12);
         this.changeState({ seed }, 50);
     };
@@ -216,7 +226,6 @@ class App extends React.Component<AppProps, AppState> {
                 {size.width > 680 && <div className={classes.controlsPlaceholder} />}
                 <Image src={src} className={classNames(classes.image, size.width <= 680 ? classes.small : null)} />
                 <div className={classNames(classes.controls, classes.column, size.width > 680 ? classes.leftBar : null)}>
-                    {size.width > 680 && <div style={{ marginBottom: 16 }} className={classes.infoBox}>Generate unique background images!</div>}
                     <FormControl className={classes.controlItem}>
                         <InputLabel>Style</InputLabel>
                         <Select
@@ -246,26 +255,32 @@ class App extends React.Component<AppProps, AppState> {
                         value={complexity}
                         onChange={(event: any, newValue: number) => this.changeState({ complexity: newValue }, 330)}
                         valueLabelDisplay="auto"
+                        valueLabelFormat={(value) => ((value * 5) + '%')}
                         className={classes.controlItem}
                         min={0}
                         max={20}
+                    />
+                    <TextField
+                        label={'Random Seed'}
+                        value={seed}
+                        className={classes.controlItem}
+                        onChange={(e) => this.changeState({ seed: e.target.value }, 500)}
+                        InputProps={{ endAdornment: <AutoRenew style={{ fill: '#2e2e2e', cursor: 'pointer' }} onClick={this.shuffleSeed} /> }}
                     />
                     <div className={classes.row} style={{ marginTop: 16 }}>
                         <Button
                             onClick={this.shuffle}
                             variant="contained"
-                            className={classes.controlItem} >
-                            <AutoRenew style={{ fill: '#2e2e2e' }} />
+                            className={classes.controlItem} >Shuffle
                         </Button>
                         <Button
                             onClick={this.download}
                             color="primary"
                             variant="contained"
                             className={classes.controlItem} >
-                            <span style={{ paddingLeft: 16, paddingRight: 16 }} >{'Download'}</span>
+                            <span >{'Download'}</span>
                         </Button>
                     </div>
-                    {size.width <= 680 && <div style={{ marginTop: 24 }} className={classes.infoBox}>Generate unique background images!</div>}
                     <div className={classes.footerPlaceholder} />
                     <div className={classes.footer}>© Oliver Saternus 2019 ✉ info@fluidart.io<br />Hägenerstraße 3, 42855 Remscheid, Germany</div>
                 </div>
