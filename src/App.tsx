@@ -5,16 +5,15 @@ import Button from "@material-ui/core/Button";
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from "@material-ui/core/TextField";
-import Casino from "@material-ui/icons/Casino";
 import AutoRenew from "@material-ui/icons/AutoRenew";
 import Slider from '@material-ui/core/Slider';
-import Save from "@material-ui/icons/Save";
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import Image from "./components/Image";
 import { baseUrl, colorSchemes } from "./utils/Constants";
 import { randomString } from "./utils/Functions";
+import WelcomeDialog from "./components/WelcomeDialog";
 import classNames from "classnames";
 
 interface AppProps {
@@ -29,6 +28,7 @@ interface AppState {
     seed?: string;
     colors?: string[];
     src?: string;
+    firstVisit?: boolean;
     size?: {
         width: number,
         height: number
@@ -75,6 +75,7 @@ const styles = () => createStyles({
     controls: {
         height: '100%',
         padding: 24,
+        backgroundColor: '#ffffff',
         position: 'relative'
     },
     controlItem: {
@@ -104,8 +105,11 @@ const styles = () => createStyles({
         left: 0,
         height: 'calc(100% - 48px)',
         width: 240,
-        backgroundColor: '#ffffff',
         boxShadow: '0 0 16px rgba(0,0,0,0.28)'
+    },
+    mobileBar: {
+        width: 'calc(100% - 48px)',
+        marginTop: 24
     },
     controlsPlaceholder: {
         width: 288,
@@ -151,12 +155,15 @@ class App extends React.Component<AppProps, AppState> {
 
     constructor(props: AppProps) {
         super(props);
+        const firstVisit = !localStorage.getItem('lastVisit');
+        localStorage.setItem('lastVisit', Date.now() + '');
         this.state = {
             style: 'fluid',
             complexity: 10,
             seed: '2VSUXK4BPJQL',
             colors: ["EF476F", "FFD166", "06D6A0", "118AB2"],
             src: [baseUrl, 'image', 'fluid', 0.5, "2VSUXK4BPJQL", "EF476F", "FFD166", "06D6A0", "118AB2"].join('/'),
+            firstVisit,
             size: {
                 width: this.rootElement.getBoundingClientRect().width,
                 height: this.rootElement.getBoundingClientRect().height
@@ -220,12 +227,13 @@ class App extends React.Component<AppProps, AppState> {
 
     render() {
         const { classes } = this.props;
-        const { style, complexity, seed, colors, src, size } = this.state;
+        const { style, complexity, seed, colors, src, size, firstVisit } = this.state;
+        const isMobile = size.width <= 680;
         return (
-            <div className={classNames(classes.root, size.width > 680 ? classes.row : classes.column)}>
-                {size.width > 680 && <div className={classes.controlsPlaceholder} />}
-                <Image src={src} className={classNames(classes.image, size.width <= 680 ? classes.small : null)} />
-                <div className={classNames(classes.controls, classes.column, size.width > 680 ? classes.leftBar : null)}>
+            <div className={classNames(classes.root, isMobile ? classes.column : classes.row)}>
+                {!isMobile && <div className={classes.controlsPlaceholder} />}
+                <Image src={src} className={classNames(classes.image, isMobile ? classes.small : null)} />
+                <div className={classNames(classes.controls, classes.column, isMobile ? classes.mobileBar : classes.leftBar)}>
                     <FormControl className={classes.controlItem}>
                         <InputLabel>Style</InputLabel>
                         <Select
@@ -284,6 +292,7 @@ class App extends React.Component<AppProps, AppState> {
                     <div className={classes.footerPlaceholder} />
                     <div className={classes.footer}>© Oliver Saternus 2019 ✉ info@fluidart.io<br />Hägenerstraße 3, 42855 Remscheid, Germany</div>
                 </div>
+                {firstVisit && <WelcomeDialog fullScreen={isMobile} />}
             </div>
         );
     }
