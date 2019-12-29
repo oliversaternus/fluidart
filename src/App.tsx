@@ -13,8 +13,18 @@ import Typography from '@material-ui/core/Typography';
 import Image from "./components/Image";
 import { baseUrl, colorSchemes } from "./utils/Constants";
 import { randomString } from "./utils/Functions";
+import IconButton from "@material-ui/core/IconButton";
+import FavoriteBorder from "@material-ui/icons/FavoriteBorder";
 import WelcomeDialog from "./components/WelcomeDialog";
+import Notification from "./components/Notification";
 import classNames from "classnames";
+
+interface Favorite {
+    id: string;
+    seed: string;
+    colors: string[];
+    complexity: number;
+}
 
 interface AppProps {
     classes: {
@@ -32,10 +42,15 @@ interface AppState {
     size?: {
         width: number,
         height: number
+    },
+    notification?: {
+        open: boolean;
+        variant: 'success' | 'info' | 'error' | 'warning';
+        message: string;
     }
 }
 
-const styles = () => createStyles({
+const styles = (theme: any) => createStyles({
     root: {
         width: '100%',
         height: 'calc(100% - 48px)',
@@ -104,7 +119,7 @@ const styles = () => createStyles({
         position: 'absolute',
         left: 0,
         height: 'calc(100% - 48px)',
-        width: 240,
+        width: 280,
         boxShadow: '0 0 16px rgba(0,0,0,0.28)'
     },
     mobileBar: {
@@ -146,6 +161,9 @@ const styles = () => createStyles({
     footerPlaceholder: {
         height: 32,
         width: '100%'
+    },
+    favoriteIcon: {
+        fill: '#2e2e2e'
     }
 });
 
@@ -167,6 +185,11 @@ class App extends React.Component<AppProps, AppState> {
             size: {
                 width: this.rootElement.getBoundingClientRect().width,
                 height: this.rootElement.getBoundingClientRect().height
+            },
+            notification: {
+                open: false,
+                variant: 'success',
+                message: ''
             }
         };
         addEventListener('resize', () => {
@@ -195,9 +218,41 @@ class App extends React.Component<AppProps, AppState> {
         this.changeState({ style, colors, complexity, seed }, 50);
     };
 
+    closeNotification = () => {
+        const { notification } = this.state;
+        notification.open = false;
+        this.setState({ notification });
+    };
+
     shuffleSeed = () => {
         const seed = randomString(12);
         this.changeState({ seed }, 50);
+    };
+
+    markFavorite = async () => {
+        const { complexity, colors, seed } = this.state;
+        try {
+            const response = await fetch(baseUrl + '/favorites', {
+                method: 'POST',
+                body: JSON.stringify({ complexity, colors, seed }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const notification: any = {
+                open: true,
+                variant: response.status === 200 ? 'success' : 'error',
+                message: response.status === 200 ? 'Added to favorites' : 'Connection error'
+            };
+            this.setState({ notification });
+        } catch (e) {
+            const notification: any = {
+                open: true,
+                variant: 'error',
+                message: 'Request failed'
+            };
+            this.setState({ notification });
+        }
     };
 
     download = () => {
@@ -227,7 +282,7 @@ class App extends React.Component<AppProps, AppState> {
 
     render() {
         const { classes } = this.props;
-        const { style, complexity, seed, colors, src, size, firstVisit } = this.state;
+        const { style, complexity, seed, colors, src, size, firstVisit, notification } = this.state;
         const isMobile = size.width <= 680;
         return (
             <div className={classNames(classes.root, isMobile ? classes.column : classes.row)}>
@@ -276,23 +331,28 @@ class App extends React.Component<AppProps, AppState> {
                         InputProps={{ endAdornment: <AutoRenew style={{ fill: '#2e2e2e', cursor: 'pointer' }} onClick={this.shuffleSeed} /> }}
                     />
                     <div className={classes.row} style={{ marginTop: 16 }}>
+                        <IconButton onClick={this.markFavorite}>
+                            <FavoriteBorder className={classes.favoriteIcon} />
+                        </IconButton>
                         <Button
                             onClick={this.shuffle}
                             variant="contained"
-                            className={classes.controlItem} >Shuffle
+                            className={classes.controlItem} >
+                            {'Shuffle'}
                         </Button>
                         <Button
                             onClick={this.download}
                             color="primary"
                             variant="contained"
                             className={classes.controlItem} >
-                            <span >{'Download'}</span>
+                            {'Download'}
                         </Button>
                     </div>
                     <div className={classes.footerPlaceholder} />
                     <div className={classes.footer}>© Oliver Saternus 2019 ✉ info@fluidart.io<br />Hägenerstraße 3, 42855 Remscheid, Germany</div>
                 </div>
                 {firstVisit && <WelcomeDialog fullScreen={isMobile} />}
+                <Notification onClose={this.closeNotification} {...notification} />
             </div>
         );
     }
