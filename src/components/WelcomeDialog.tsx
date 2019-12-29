@@ -65,25 +65,22 @@ class WelcomeDialog extends React.Component<WelcomeDialogProps, WelcomeDialogSta
         const { classes, fullScreen } = this.props;
         const { open } = this.state;
         return (
-            <React.Fragment>
-                <Dialog
-                    fullScreen={fullScreen}
-                    classes={{ paper: classes.dialogPaper }}
-                    TransitionComponent={Transition}
-                    open={open}
-                    onClose={this.closeDialog}
-                >
-                    <DialogContent className={classes.dialog}>
-                        <IconButton onClick={this.closeDialog} className={classes.clearButton}>
-                            <ClearIcon className={classes.clearIcon} />
-                        </IconButton>
-                        <div className={classes.content}>
-                            {'Welcome to your first visit!'}
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            </React.Fragment>
-
+            <Dialog
+                fullScreen={fullScreen}
+                classes={{ paper: classes.dialogPaper }}
+                TransitionComponent={Transition}
+                open={open}
+                onClose={this.closeDialog}
+            >
+                <DialogContent className={classes.dialog}>
+                    <IconButton onClick={this.closeDialog} className={classes.clearButton}>
+                        <ClearIcon className={classes.clearIcon} />
+                    </IconButton>
+                    <div className={classes.content}>
+                        {'Welcome to your first visit!'}
+                    </div>
+                </DialogContent>
+            </Dialog>
         );
     }
 }

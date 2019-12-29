@@ -8,6 +8,7 @@ interface ImageProps {
     src: string;
     style?: any;
     className?: string;
+    noIndicator?: boolean;
     classes: {
         [key: string]: string;
     }
@@ -57,7 +58,7 @@ class Image extends React.Component<ImageProps, { loaded: boolean }> {
     }
 
     render() {
-        const { classes, src, className, style } = this.props;
+        const { classes, src, className, style, noIndicator } = this.props;
         const { loaded } = this.state;
         return (
             <div className={classNames(classes.root, className)} style={style}>
@@ -70,7 +71,7 @@ class Image extends React.Component<ImageProps, { loaded: boolean }> {
                     <div
                         className={classNames(classes.overlay)}
                     >
-                        <CircularProgress />
+                        {!noIndicator && <CircularProgress />}
                     </ div>}
             </div>
         );

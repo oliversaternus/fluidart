@@ -14,17 +14,12 @@ import Image from "./components/Image";
 import { baseUrl, colorSchemes } from "./utils/Constants";
 import { randomString } from "./utils/Functions";
 import IconButton from "@material-ui/core/IconButton";
+import FavoriteIcon from "@material-ui/icons/Favorite";
 import FavoriteBorder from "@material-ui/icons/FavoriteBorder";
 import WelcomeDialog from "./components/WelcomeDialog";
 import Notification from "./components/Notification";
+import FavoritesDialogButton, { Favorite } from "./components/FavoritesDialog";
 import classNames from "classnames";
-
-interface Favorite {
-    id: string;
-    seed: string;
-    colors: string[];
-    complexity: number;
-}
 
 interface AppProps {
     classes: {
@@ -39,6 +34,7 @@ interface AppState {
     colors?: string[];
     src?: string;
     firstVisit?: boolean;
+    favoriteId?: string;
     size?: {
         width: number,
         height: number
@@ -137,7 +133,7 @@ const styles = (theme: any) => createStyles({
         alignItems: 'center',
         justifyContent: 'center',
         color: '#ffffff',
-        fontFamily: 'sans-serif',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
         fontWeight: 'bold',
         fontSize: 16,
         padding: 16,
@@ -152,7 +148,7 @@ const styles = (theme: any) => createStyles({
         bottom: 0,
         left: 0,
         color: '#2e2e2e',
-        fontFamily: 'sans-serif',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
         fontSize: 12,
         padding: 12,
         width: 'calc(100% - 24px)',
@@ -163,7 +159,7 @@ const styles = (theme: any) => createStyles({
         width: '100%'
     },
     favoriteIcon: {
-        fill: '#2e2e2e'
+        fill: theme.palette.primary.main
     }
 });
 
@@ -200,7 +196,7 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     changeState = (values: AppState, timeout: number) => {
-        this.setState(values);
+        this.setState({ ...values, favoriteId: values.favoriteId });
         if (this.debounce) {
             clearTimeout(this.debounce);
         }
@@ -208,6 +204,11 @@ class App extends React.Component<AppProps, AppState> {
             const { style, complexity, seed, colors } = this.state;
             this.setState({ src: [baseUrl, 'image', style, complexity / 20, seed, ...colors].join('/') });
         }, timeout);
+    };
+
+    selectFavorite = (favorite: Favorite) => {
+        const { complexity, style, colors, seed, id } = favorite;
+        this.changeState({ complexity: complexity * 20, style, colors, seed, favoriteId: id }, 50);
     };
 
     shuffle = () => {
@@ -230,29 +231,57 @@ class App extends React.Component<AppProps, AppState> {
     };
 
     markFavorite = async () => {
-        const { complexity, colors, seed } = this.state;
+        const { complexity, colors, seed, style } = this.state;
         try {
             const response = await fetch(baseUrl + '/favorites', {
                 method: 'POST',
-                body: JSON.stringify({ complexity, colors, seed }),
+                body: JSON.stringify({ complexity: complexity / 20, colors, seed, style }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
+            const added = response.status === 200;
             const notification: any = {
                 open: true,
-                variant: response.status === 200 ? 'success' : 'error',
-                message: response.status === 200 ? 'Added to favorites' : 'Connection error'
+                variant: added ? 'success' : 'error',
+                message: added ? 'Added to favorites' : 'Oops! Something went wrong'
             };
-            this.setState({ notification });
+            if (!added) {
+                return;
+            }
+            const favorite: Favorite = await response.json();
+            const favs: Favorite[] = JSON.parse(localStorage.getItem('favorites')) || [];
+            if (favs.findIndex(item => item.id === favorite.id) === -1) {
+                favs.push(favorite);
+                localStorage.setItem('favorites', JSON.stringify(favs));
+            }
+            this.setState({ notification, favoriteId: favorite.id });
         } catch (e) {
             const notification: any = {
                 open: true,
                 variant: 'error',
-                message: 'Request failed'
+                message: 'Oops! Something went wrong'
             };
             this.setState({ notification });
         }
+    };
+
+    unMarkFavorite = () => {
+        try {
+            const { favoriteId } = this.state;
+            const favs: Favorite[] = JSON.parse(localStorage.getItem('favorites')) || [];
+            const index = favs.findIndex(item => item.id === favoriteId);
+            if (index !== -1) {
+                favs.splice(index, 1);
+                localStorage.setItem('favorites', JSON.stringify(favs));
+                const notification: any = {
+                    open: true,
+                    variant: 'error',
+                    message: 'Removed from Favorites'
+                };
+                this.setState({ notification, favoriteId: undefined });
+            }
+        } catch (e) { }
     };
 
     download = () => {
@@ -282,7 +311,7 @@ class App extends React.Component<AppProps, AppState> {
 
     render() {
         const { classes } = this.props;
-        const { style, complexity, seed, colors, src, size, firstVisit, notification } = this.state;
+        const { style, complexity, seed, colors, src, size, firstVisit, notification, favoriteId } = this.state;
         const isMobile = size.width <= 680;
         return (
             <div className={classNames(classes.root, isMobile ? classes.column : classes.row)}>
@@ -330,10 +359,13 @@ class App extends React.Component<AppProps, AppState> {
                         onChange={(e) => this.changeState({ seed: e.target.value }, 500)}
                         InputProps={{ endAdornment: <AutoRenew style={{ fill: '#2e2e2e', cursor: 'pointer' }} onClick={this.shuffleSeed} /> }}
                     />
-                    <div className={classes.row} style={{ marginTop: 16 }}>
-                        <IconButton onClick={this.markFavorite}>
-                            <FavoriteBorder className={classes.favoriteIcon} />
+                    <div className={classes.row} style={{ marginTop: 8 }}>
+                        <IconButton onClick={favoriteId ? this.unMarkFavorite : this.markFavorite}>
+                            {favoriteId ? <FavoriteIcon className={classes.favoriteIcon} /> : <FavoriteBorder style={{ fill: '#2e2e2e' }} />}
                         </IconButton>
+                        <FavoritesDialogButton fullScreen={isMobile} onSelect={this.selectFavorite} />
+                    </div>
+                    <div className={classes.row} style={{ marginTop: 8 }}>
                         <Button
                             onClick={this.shuffle}
                             variant="contained"
@@ -351,7 +383,7 @@ class App extends React.Component<AppProps, AppState> {
                     <div className={classes.footerPlaceholder} />
                     <div className={classes.footer}>© Oliver Saternus 2019 ✉ info@fluidart.io<br />Hägenerstraße 3, 42855 Remscheid, Germany</div>
                 </div>
-                {firstVisit && <WelcomeDialog fullScreen={isMobile} />}
+                {firstVisit && false && <WelcomeDialog fullScreen={isMobile} />}
                 <Notification onClose={this.closeNotification} {...notification} />
             </div>
         );

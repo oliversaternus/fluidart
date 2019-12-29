@@ -75,7 +75,7 @@ const styles1 = ({ palette }: any) => createStyles({
         display: 'flex',
         alignItems: 'center',
         color: '#ffffff',
-        fontFamily: 'Montserrat'
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
     },
 });
 
