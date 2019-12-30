@@ -9,6 +9,8 @@ import AutoRenew from "@material-ui/icons/AutoRenew";
 import Slider from '@material-ui/core/Slider';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import Shuffle from "@material-ui/icons/Shuffle";
+import SaveAlt from "@material-ui/icons/SaveAlt";
 import Typography from '@material-ui/core/Typography';
 import Image from "./components/Image";
 import { baseUrl, colorSchemes } from "./utils/Constants";
@@ -43,7 +45,8 @@ interface AppState {
         open: boolean;
         variant: 'success' | 'info' | 'error' | 'warning';
         message: string;
-    }
+    };
+    favorites?: Favorite[];
 }
 
 const styles = (theme: any) => createStyles({
@@ -115,7 +118,7 @@ const styles = (theme: any) => createStyles({
         position: 'absolute',
         left: 0,
         height: 'calc(100% - 48px)',
-        width: 280,
+        width: 240,
         boxShadow: '0 0 16px rgba(0,0,0,0.28)'
     },
     mobileBar: {
@@ -123,7 +126,7 @@ const styles = (theme: any) => createStyles({
         marginTop: 24
     },
     controlsPlaceholder: {
-        width: 288,
+        width: 248,
         height: '100%'
     },
     infoBox: {
@@ -186,7 +189,8 @@ class App extends React.Component<AppProps, AppState> {
                 open: false,
                 variant: 'success',
                 message: ''
-            }
+            },
+            favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
         };
         addEventListener('resize', () => {
             const rect = this.rootElement.getBoundingClientRect();
@@ -255,7 +259,7 @@ class App extends React.Component<AppProps, AppState> {
                 favs.push(favorite);
                 localStorage.setItem('favorites', JSON.stringify(favs));
             }
-            this.setState({ notification, favoriteId: favorite.id });
+            this.setState({ notification, favorites: favs });
         } catch (e) {
             const notification: any = {
                 open: true,
@@ -266,20 +270,28 @@ class App extends React.Component<AppProps, AppState> {
         }
     };
 
+    findFavoriteId = () => {
+        const { complexity, colors, style, seed, favorites } = this.state;
+        const index = favorites.findIndex(item =>
+            item.complexity * 20 === complexity && JSON.stringify(item.colors) === JSON.stringify(colors) &&
+            item.style === style && item.seed === seed);
+        return index === -1 ? undefined : favorites[index].id;
+    };
+
     unMarkFavorite = () => {
         try {
-            const { favoriteId } = this.state;
-            const favs: Favorite[] = JSON.parse(localStorage.getItem('favorites')) || [];
-            const index = favs.findIndex(item => item.id === favoriteId);
+            const { favorites } = this.state;
+            const id = this.findFavoriteId();
+            const index = favorites.findIndex(item => item.id === id);
             if (index !== -1) {
-                favs.splice(index, 1);
-                localStorage.setItem('favorites', JSON.stringify(favs));
+                favorites.splice(index, 1);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
                 const notification: any = {
                     open: true,
                     variant: 'error',
                     message: 'Removed from Favorites'
                 };
-                this.setState({ notification, favoriteId: undefined });
+                this.setState({ notification, favorites });
             }
         } catch (e) { }
     };
@@ -311,8 +323,9 @@ class App extends React.Component<AppProps, AppState> {
 
     render() {
         const { classes } = this.props;
-        const { style, complexity, seed, colors, src, size, firstVisit, notification, favoriteId } = this.state;
+        const { style, complexity, seed, colors, src, size, firstVisit, notification } = this.state;
         const isMobile = size.width <= 680;
+        const favoriteId = this.findFavoriteId();
         return (
             <div className={classNames(classes.root, isMobile ? classes.column : classes.row)}>
                 {!isMobile && <div className={classes.controlsPlaceholder} />}
@@ -352,34 +365,36 @@ class App extends React.Component<AppProps, AppState> {
                         min={0}
                         max={20}
                     />
-                    <TextField
-                        label={'Random Seed'}
-                        value={seed}
-                        className={classes.controlItem}
-                        onChange={(e) => this.changeState({ seed: e.target.value }, 500)}
-                        InputProps={{ endAdornment: <AutoRenew style={{ fill: '#2e2e2e', cursor: 'pointer' }} onClick={this.shuffleSeed} /> }}
-                    />
-                    <div className={classes.row} style={{ marginTop: 8 }}>
-                        <IconButton onClick={favoriteId ? this.unMarkFavorite : this.markFavorite}>
+                    <div className={classes.row}>
+                        <TextField
+                            label={'Random Seed'}
+                            value={seed}
+                            className={classes.controlItem}
+                            onChange={(e) => this.changeState({ seed: e.target.value }, 500)}
+                            InputProps={{ startAdornment: <AutoRenew style={{ fill: '#2e2e2e', cursor: 'pointer', marginRight: 6 }} onClick={this.shuffleSeed} /> }}
+                        />
+                        <IconButton style={{ marginTop: 16 }} onClick={favoriteId ? this.unMarkFavorite : this.markFavorite}>
                             {favoriteId ? <FavoriteIcon className={classes.favoriteIcon} /> : <FavoriteBorder style={{ fill: '#2e2e2e' }} />}
                         </IconButton>
-                        <FavoritesDialogButton fullScreen={isMobile} onSelect={this.selectFavorite} />
                     </div>
-                    <div className={classes.row} style={{ marginTop: 8 }}>
-                        <Button
-                            onClick={this.shuffle}
-                            variant="contained"
-                            className={classes.controlItem} >
-                            {'Shuffle'}
-                        </Button>
-                        <Button
-                            onClick={this.download}
-                            color="primary"
-                            variant="contained"
-                            className={classes.controlItem} >
-                            {'Download'}
-                        </Button>
-                    </div>
+                    <FavoritesDialogButton fullScreen={isMobile} onSelect={this.selectFavorite} />
+                    <Button
+                        style={{ marginTop: 8 }}
+                        fullWidth
+                        onClick={this.shuffle}
+                        variant="contained" >
+                        <Shuffle />
+                        <span style={{ width: 90 }}>{'Shuffle'}</span>
+                    </Button>
+                    <Button
+                        style={{ marginTop: 8 }}
+                        fullWidth
+                        onClick={this.download}
+                        color="primary"
+                        variant="contained" >
+                        <SaveAlt />
+                        <span style={{ width: 90 }}>{'Download'}</span>
+                    </Button>
                     <div className={classes.footerPlaceholder} />
                     <div className={classes.footer}>© Oliver Saternus 2019 ✉ info@fluidart.io<br />Hägenerstraße 3, 42855 Remscheid, Germany</div>
                 </div>

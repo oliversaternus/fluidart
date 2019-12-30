@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:8989';//'https://fluidart.io';
+const baseUrl = 'https://fluidart.io';
 
 const colorSchemes = [
     [

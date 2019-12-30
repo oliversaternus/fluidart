@@ -3,6 +3,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import IconButton from "@material-ui/core/IconButton";
 import ClearIcon from "@material-ui/icons/Clear";
 import Slide from "@material-ui/core/Slide";
+import Apps from "@material-ui/icons/Apps";
 import createStyles from "@material-ui/styles/createStyles";
 import Button from "@material-ui/core/Button";
 import * as React from "react";
@@ -58,6 +59,9 @@ const styles = (theme: any) => createStyles({
     clearIcon: {
         fill: '#2e2e2e'
     },
+    appsIcon: {
+        fill: '#2e2e2e'
+    },
     content: {
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
         color: '#2e2e2e',
@@ -86,7 +90,8 @@ const styles = (theme: any) => createStyles({
         }
     },
     title: {
-        width: '100%'
+        width: '100%',
+        fontSize: 18
     }
 });
 
@@ -142,7 +147,7 @@ class FavoritesDialog extends React.Component<FavoritesDialogProps, FavoritesDia
         const { open } = this.state;
         return (
             <React.Fragment>
-                <Button onClick={this.openDialog} >{'Favorites'}</Button>
+                <Button style={{marginTop: 6}} variant="contained" fullWidth onClick={this.openDialog} ><Apps className={classes.appsIcon} /><span style={{ width: 90 }}>{'Favorites'}</span></Button>
                 <Dialog
                     fullScreen={fullScreen}
                     classes={{ paper: classes.dialogPaper }}
@@ -152,7 +157,7 @@ class FavoritesDialog extends React.Component<FavoritesDialogProps, FavoritesDia
                     maxWidth="md"
                 >
                     <DialogContent className={classes.dialog}>
-                        <Typography variant="h5" className={classes.title} align="center" >Favorites</Typography>
+                        <Typography variant="body2" className={classes.title} align="center" >Favorites</Typography>
                         <IconButton onClick={this.closeDialog} className={classes.clearButton}>
                             <ClearIcon className={classes.clearIcon} />
                         </IconButton>
